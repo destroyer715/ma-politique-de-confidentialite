@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suppression de compte</title>
+    <style>
+        /* --- Reset & Base --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #f0f4f9; /* Fond très clair pour contraster avec la carte blanche */
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        /* --- Carte principale --- */
+        .container {
+            background: #ffffff;
+            max-width: 540px;
+            width: 100%;
+            padding: 40px 35px;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px -12px rgba(0, 20, 40, 0.15);
+            border: 1px solid rgba(0, 100, 255, 0.08);
+            transition: all 0.2s ease;
+        }
+
+        /* --- En-tête (Bleu accent) --- */
+        .container h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #0b2b4a; /* Bleu foncé élégant */
+            margin-bottom: 10px;
+            letter-spacing: -0.02em;
+            line-height: 1.3;
+            border-left: 5px solid #2563eb; /* ACCENT BLEU */
+            padding-left: 18px;
+        }
+
+        .container .subtitle {
+            color: #4a5b6e;
+            font-size: 0.95rem;
+            margin-bottom: 32px;
+            padding-left: 23px;
+            font-weight: 400;
+        }
+
+        /* --- Groupe de formulaire --- */
+        .form-group {
+            margin-bottom: 28px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 6px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 18px;
+            font-size: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
+            background: #fafcff;
+            transition: border-color 0.25s ease, box-shadow 0.25s ease;
+            color: #0b2b4a;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #2563eb; /* ACCENT BLEU */
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+            background: #ffffff;
+        }
+
+        .form-group input::placeholder {
+            color: #94a3b8;
+            font-weight: 300;
+        }
+
+        /* --- Bouton Supprimer (ROUGE) --- */
+        #deleteBtn {
+            width: 100%;
+            padding: 16px 20px;
+            background: #dc2626; /* Rouge vif */
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.1s ease, opacity 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            letter-spacing: 0.3px;
+            box-shadow: 0 4px 10px rgba(220, 38, 38, 0.25);
+        }
+
+        #deleteBtn:hover:not(:disabled) {
+            background: #b91c1c;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(220, 38, 38, 0.35);
+        }
+
+        #deleteBtn:active:not(:disabled) {
+            transform: translateY(0px);
+        }
+
+        #deleteBtn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        /* --- Zone de feedback (spinner + message) --- */
+        .feedback-area {
+            margin-top: 28px;
+            min-height: 70px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Spinner circulaire (bleu accent) */
+        .spinner-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .spinner {
+            width: 44px;
+            height: 44px;
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid #2563eb; /* ACCENT BLEU */
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .spinner-wrapper p {
+            color: #475569;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        /* Message de succès */
+        .success-message {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 14px;
+            padding: 16px 20px;
+            width: 100%;
+            text-align: center;
+            color: #15803d;
+            font-weight: 600;
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .success-message::before {
+            content: "✔️";
+            font-size: 1.4rem;
+        }
+
+        /* --- Utilitaires d'affichage --- */
+        .hidden {
+            display: none !important;
+        }
+
+        /* --- Animation du spinner --- */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* --- Responsive (mobile first, déjà géré) --- */
+        @media (max-width: 480px) {
+            .container {
+                padding: 28px 20px;
+                border-radius: 20px;
+            }
+
+            .container h1 {
+                font-size: 1.5rem;
+                padding-left: 14px;
+            }
+
+            .container .subtitle {
+                font-size: 0.85rem;
+                padding-left: 19px;
+            }
+
+            #deleteBtn {
+                font-size: 1rem;
+                padding: 15px;
+            }
+
+            .spinner {
+                width: 36px;
+                height: 36px;
+                border-width: 3px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .container h1 {
+                font-size: 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- En-tête avec l'accent bleu -->
+    <h1>Bienvenue sur la page de suppression de votre compte</h1>
+    <p class="subtitle">Nous sommes désolés de vous voir partir. Veuillez confirmer votre adresse email.</p>
+
+    <!-- Formulaire -->
+    <form id="deleteForm" autocomplete="off">
+        <div class="form-group">
+            <label for="email">Adresse email associée à votre compte</label>
+            <input 
+                type="email" 
+                id="email" 
+                placeholder="exemple@domaine.com" 
+                required 
+                autofocus
+            >
+        </div>
+
+        <!-- Bouton rouge -->
+        <button type="button" id="deleteBtn">
+            <span>🗑️</span> Supprimer mon compte
+        </button>
+    </form>
+
+    <!-- Zone de feedback (spinner / succès) -->
+    <div class="feedback-area">
+        <!-- Spinner (caché par défaut) -->
+        <div id="loadingIndicator" class="spinner-wrapper hidden">
+            <div class="spinner"></div>
+            <p>Patientez, suppression en cours...</p>
+        </div>
+
+        <!-- Message de succès (caché par défaut) -->
+        <div id="successMessage" class="success-message hidden">
+            La soumission a été un succès !
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // Éléments DOM
+        const deleteBtn = document.getElementById('deleteBtn');
+        const emailInput = document.getElementById('email');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const successMessage = document.getElementById('successMessage');
+
+        // Fonction pour réinitialiser l'état (cacher tous les retours)
+        function resetFeedback() {
+            loadingIndicator.classList.add('hidden');
+            successMessage.classList.add('hidden');
+        }
+
+        // Gestion du clic sur le bouton
+        deleteBtn.addEventListener('click', function() {
+            const email = emailInput.value.trim();
+
+            // Validation basique de l'email
+            if (!email || !email.includes('@') || !email.includes('.')) {
+                alert('Veuillez saisir une adresse email valide (exemple: nom@domaine.com).');
+                emailInput.focus();
+                return;
+            }
+
+            // 1. Cacher les anciens messages
+            resetFeedback();
+
+            // 2. Désactiver le bouton et afficher le spinner
+            deleteBtn.disabled = true;
+            loadingIndicator.classList.remove('hidden');
+
+            // 3. Simuler le traitement (500 ms)
+            setTimeout(() => {
+                // 4. Cacher le spinner, afficher le succès
+                loadingIndicator.classList.add('hidden');
+                successMessage.classList.remove('hidden');
+
+                // 5. Réactiver le bouton et vider le champ pour une éventuelle nouvelle tentative
+                deleteBtn.disabled = false;
+                emailInput.value = '';
+                emailInput.focus();
+
+                // (Optionnel) On pourrait ici rediriger ou faire d'autres actions
+                console.log('✅ Demande de suppression soumise pour :', email);
+
+            }, 500); // ⏱️ 500 ms exactement
+        });
+
+        // Permettre la soumission en appuyant sur "Entrée" (UX bonus)
+        emailInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                deleteBtn.click();
+            }
+        });
+
+        // Réinitialiser les messages si l'utilisateur recommence à taper
+        emailInput.addEventListener('input', function() {
+            if (!loadingIndicator.classList.contains('hidden') || !successMessage.classList.contains('hidden')) {
+                resetFeedback();
+                deleteBtn.disabled = false;
+            }
+        });
+
+    })();
+</script>
+
+</body>
+</html>
